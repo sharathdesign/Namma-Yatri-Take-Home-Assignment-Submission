@@ -115,6 +115,19 @@
     .decision-visuals a:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:14px}
     @media(max-width:640px){.decision-visuals.three,.decision-visuals.two{grid-template-columns:1fr}.decision-visuals figure{width:100%;max-width:390px;margin:0 auto}}
 
+
+    .flow-video{position:relative;width:100%;aspect-ratio:16/10;background:#f2f2f2;border:1px solid var(--border-2);border-radius:14px;overflow:hidden}
+    .flow-video video{width:100%;height:100%;object-fit:contain;display:block;cursor:pointer}
+    .flow-video-toggle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:60px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(10,10,10,.7);color:#fff;cursor:pointer;transition:opacity .15s ease;box-shadow:0 2px 16px rgba(0,0,0,.15)}
+    .flow-video-toggle svg{width:26px;height:26px;grid-area:1/1}
+    .flow-video-toggle:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+    .flow-video .pause-icon{display:none}
+    .flow-video[data-playing="true"] .play-icon{display:none}
+    .flow-video[data-playing="true"] .pause-icon{display:block}
+    .flow-video[data-playing="true"] .flow-video-toggle{opacity:0}
+    .flow-video:hover .flow-video-toggle,.flow-video .flow-video-toggle:focus-visible{opacity:1}
+    @media(hover:none){.flow-video[data-playing="true"] .flow-video-toggle{opacity:1}}
+
     /* decisions */
     .decision-stack{margin-top:48px;display:flex;flex-direction:column;gap:56px}
     .decision-card .dbody{padding:0 0 4px}
@@ -253,25 +266,40 @@
     <div class="flow">
       <div class="flow-label">Flow 1 — <span class="sub">Main flow</span></div>
       <div class="flow-steps"><b>Invitation</b> <span class="arrow">→</span> <b>Pickup</b> <span class="arrow">→</span> <b>Review &amp; agree</b> <span class="arrow">→</span> <b>Request</b> <span class="arrow">→</span> <b>Organiser confirms</b> <span class="arrow">→</span> <b>Seat confirmed</b></div>
-      <div class="placeholder canvas">
-        <div class="ph-label">Friend joins — Flow diagram</div>
-        <div class="ph-sub">Placeholder for the friend's joining flow</div>
+      <div class="flow-video" data-playing="false" style="aspect-ratio:2880/1620">
+        <video preload="none" muted playsinline poster="assets/flow-1-poster.webp" aria-label="Main joining flow">
+          <source src="assets/flow-1.mp4" type="video/mp4">
+        </video>
+        <button class="flow-video-toggle" type="button" aria-label="Play main joining flow">
+          <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z" fill="currentColor"/></svg>
+        </button>
       </div>
     </div>
     <div class="flow">
       <div class="flow-label">Flow 2 — <span class="sub">Cancel request / Keep, withdraw, retry</span></div>
       <div class="flow-steps"><b>Pending request</b> <span class="arrow">→</span> <b>Keep request or cancel</b> <span class="arrow">→</span> <b>Review pickup &amp; try again</b></div>
-      <div class="placeholder canvas">
-          <div class="ph-label">Cancel request — Flow diagram</div>
-          <div class="ph-sub">Placeholder for the cancellation and retry flow</div>
-        </div>
+      <div class="flow-video" data-playing="false" style="aspect-ratio:2880/1620">
+        <video preload="none" muted playsinline poster="assets/flow-2-poster.webp" aria-label="Cancel request and retry flow">
+          <source src="assets/flow-2.mp4" type="video/mp4">
+        </video>
+        <button class="flow-video-toggle" type="button" aria-label="Play cancel request and retry flow">
+          <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z" fill="currentColor"/></svg>
+        </button>
+      </div>
     </div>
     <div class="flow">
       <div class="flow-label">Flow 3 — <span class="sub">Organiser decision / Keep reviewing or decline</span></div>
       <div class="flow-steps"><b>Joining request</b> <span class="arrow">→</span> <b>Decline sheet</b> <span class="arrow">→</span> <b>Keep reviewing or decline</b> <span class="arrow">→</span> <b>Joiner sees outcome</b></div>
-      <div class="placeholder canvas">
-        <div class="ph-label">Organizer confirms — Flow diagram</div>
-        <div class="ph-sub">Placeholder for the organizer's confirmation flow</div>
+      <div class="flow-video" data-playing="false" style="aspect-ratio:2880/1620">
+        <video preload="none" muted playsinline poster="assets/flow-3-poster.webp" aria-label="Organiser decision flow">
+          <source src="assets/flow-3.mp4" type="video/mp4">
+        </video>
+        <button class="flow-video-toggle" type="button" aria-label="Play organiser decision flow">
+          <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z" fill="currentColor"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -484,6 +512,30 @@
   window.addEventListener('resize', onScroll, { passive: true });
   updateActive();
 })();
+
+(function(){
+  var players = Array.from(document.querySelectorAll('.flow-video'));
+  players.forEach(function(player){
+    var video = player.querySelector('video');
+    var button = player.querySelector('button');
+    var name = video.getAttribute('aria-label').toLowerCase();
+    function sync(){
+      var playing = !video.paused && !video.ended;
+      player.dataset.playing = String(playing);
+      button.setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + name);
+    }
+    function toggle(){
+      if(!video.paused){video.pause();return;}
+      players.forEach(function(other){if(other !== player) other.querySelector('video').pause();});
+      video.play().catch(sync);
+    }
+    button.addEventListener('click',toggle);
+    video.addEventListener('click',toggle);
+    ['play','pause','ended','error'].forEach(function(event){video.addEventListener(event,sync);});
+    sync();
+  });
+})();
+
 </script>
 </body>
 </html>
